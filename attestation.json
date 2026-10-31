@@ -1,0 +1,9 @@
+{
+  "pluginId": "neobase.traducteur",
+  "repo": "NDesumeur/neobase-plugin-traducteur",
+  "version": "1.2.1",
+  "sha256": "dfb894b8af553c178fb881665cc9f4201f7b8c20068c441a86793dec4e217b54",
+  "approvedAt": "2026-10-31T17:51:20.985Z",
+  "neobase": ">=4.0.0",
+  "signature": "eRkcTmCQ+WPy1brssw2XuZjTCqHYqvvGb4/zsCXu18lTKj2W16O6IWtfkQgS2vHFOoxE7O2N7AO8xljk20wDBw=="
+}
