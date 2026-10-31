@@ -2,11 +2,16 @@
 // Ses données sont dans le dossier du plugin, que NeoBase sauvegarde (synchro cloud et sauvegardes) ; à la première ouverture elle reprend ce que tu avais dans NeoBase.
 // Elle demande l'accès complet pour utiliser les outils d'interface de NeoBase. NeoBase ne l'ouvre que si elle est signée.
 const HTML = "<div class=\"appWrap\">\n      <div class=\"agHead\"><span class=\"label\">Traducteur</span><span class=\"hint\" id=\"trInfo\"></span></div>\n      <div class=\"trMain\">\n        <div class=\"sysCard px\"><select class=\"f\" id=\"trFrom\"></select><textarea class=\"f trBox\" id=\"trIn\" placeholder=\"Écris ou colle un texte…\"></textarea><div class=\"hint\" id=\"trCount\"></div></div>\n        <button class=\"btn px\" id=\"trSwap\" title=\"Inverser les langues\">⇄</button>\n        <div class=\"sysCard px\"><select class=\"f\" id=\"trTo\"></select><textarea class=\"f trBox\" id=\"trOut\" readonly placeholder=\"Traduction\"></textarea><div class=\"row\"><button class=\"btn px\" id=\"trCopy\">Copier</button></div></div>\n      </div>\n      <div class=\"hint\">Service MyMemory : gratuit et sans compte, environ 5 000 caractères par jour.</div>\n    </div>";
+/*CSS-MOVED*/ const CSS = `.trMain{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center}
+#trSwap{height:46px;font-size:20px}
+.trBox{min-height:260px;resize:vertical;font-size:17px;line-height:1.5}
+`;  // le style de ce plugin (il utilise les variables du thème de NeoBase)
 export default async function (ctx) {
   const view = ctx.view;
   if (!ctx.host) { view.textContent = "Ce plugin doit être approuvé par NeoBase pour s'ouvrir."; return; }
   const { el, toast, sfx, ask, newTab, pixIcon, PIX, WX } = ctx.host;
   const folder = ctx.folder, legacy = ctx.legacy || {};
+  ctx.host.addStyle(CSS);
   view.innerHTML = HTML;
   const $ = id => id === "transApp" ? view : view.querySelector('#' + id);  // les identifiants de ta vue, sans toucher à ceux du reste de NeoBase
   const doc = async n => { try { return await folder.read(n); } catch { return null; } };
