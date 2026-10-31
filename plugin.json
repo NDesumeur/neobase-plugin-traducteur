@@ -1,0 +1,16 @@
+{
+  "id": "neobase.traducteur",
+  "name": "Traducteur",
+  "version": "1.0.0",
+  "author": "NDesumeur",
+  "description": "Traduit un texte entre de nombreuses langues (service MyMemory, sans compte).",
+  "entry": "index.js",
+  "view": "traducteur",
+  "neobase": ">=4.0.0",
+  "type": "app",
+  "category": "Outils",
+  "mobile": true,
+  "system": false,
+  "dependencies": {},
+  "permissions": ["network"]
+}
