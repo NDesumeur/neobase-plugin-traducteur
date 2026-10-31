@@ -1,53 +1,46 @@
-// Traducteur, plugin NeoBase autonome (permission « network » : service MyMemory, gratuit, sans compte).
-const LANGS = {auto: 'Détecter la langue', fr: 'Français', en: 'Anglais', es: 'Espagnol', de: 'Allemand', it: 'Italien', pt: 'Portugais', nl: 'Néerlandais', ru: 'Russe', ja: 'Japonais', ko: 'Coréen', zh: 'Chinois', ar: 'Arabe', tr: 'Turc', pl: 'Polonais', sv: 'Suédois', da: 'Danois', no: 'Norvégien', fi: 'Finnois', el: 'Grec', cs: 'Tchèque', hu: 'Hongrois', ro: 'Roumain', uk: 'Ukrainien', he: 'Hébreu', hi: 'Hindi', th: 'Thaï', vi: 'Vietnamien'};
-const chunks = t => { const out = []; let cur = ''; for (const s of t.match(/[^.!?\n]+[.!?\n]*|\n/g) || [t]) { if ((cur + s).length > 450 && cur) { out.push(cur); cur = ''; } cur += s; } if (cur) out.push(cur); return out; };
+// Traducteur : ton appli d'origine, reprise telle quelle (HTML et code inchangés), livrée en plugin.
+// Elle demande l'accès complet : elle utilise les outils de NeoBase comme avant. NeoBase ne l'ouvre que si elle est signée.
+const HTML = "<div class=\"appWrap\">\n      <div class=\"agHead\"><span class=\"label\">Traducteur</span><span class=\"hint\" id=\"trInfo\"></span></div>\n      <div class=\"trMain\">\n        <div class=\"sysCard px\"><select class=\"f\" id=\"trFrom\"></select><textarea class=\"f trBox\" id=\"trIn\" placeholder=\"Écris ou colle un texte…\"></textarea><div class=\"hint\" id=\"trCount\"></div></div>\n        <button class=\"btn px\" id=\"trSwap\" title=\"Inverser les langues\">⇄</button>\n        <div class=\"sysCard px\"><select class=\"f\" id=\"trTo\"></select><textarea class=\"f trBox\" id=\"trOut\" readonly placeholder=\"Traduction\"></textarea><div class=\"row\"><button class=\"btn px\" id=\"trCopy\">Copier</button></div></div>\n      </div>\n      <div class=\"hint\">Service MyMemory : gratuit et sans compte, environ 5 000 caractères par jour.</div>\n    </div>";
 export default function (ctx) {
-  const el = ctx.el;
-  let timer = null, seq = 0;
-  const S = el('style');
-  S.textContent = `
-    .tr{padding:18px;display:flex;flex-direction:column;gap:12px}
-    .tr .main{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
-    .tr .box{flex:1;min-width:240px;display:flex;flex-direction:column;gap:8px;background:color-mix(in srgb,var(--line,#2a1d52) 35%,var(--bg0,#0b031c));padding:12px;box-shadow:inset 0 0 0 2px var(--line2,#3a2a6e)}
-    .tr select,.tr textarea{background:color-mix(in srgb,var(--bg0,#0b031c) 70%,#000);color:#fff;border:2px solid var(--line2,#3a2a6e);font:15px var(--text,sans-serif);padding:8px 10px;outline:0}
-    .tr textarea{min-height:200px;resize:vertical}
-    .tr button{font:12px var(--title,monospace);color:#fff;border:0;padding:9px 13px;cursor:pointer;background:color-mix(in srgb,var(--violet,#8a5cf0) 70%,#000)}
-    .tr .swap{align-self:center}
-    .tr .hint{color:var(--muted,#8f7bb8);font-size:13px}`;
-  const from = el('select'), to = el('select');
-  for (const [k, n] of Object.entries(LANGS)) { from.append(Object.assign(el('option', '', n), {value: k})); if (k !== 'auto') to.append(Object.assign(el('option', '', n), {value: k})); }
-  from.value = 'auto'; to.value = 'fr';
-  const inp = el('textarea'); inp.placeholder = 'Écris ou colle un texte…';
-  const count = el('div', 'hint'), info = el('div', 'hint');
-  const out = el('textarea'); out.readOnly = true; out.placeholder = 'Traduction';
-  const copy = el('button', '', 'Copier'), swap = el('button', 'swap', '⇄');
-  const b1 = el('div', 'box'); b1.append(from, inp, count);
-  const b2 = el('div', 'box'); b2.append(to, out, copy);
-  const main = el('div', 'main'); main.append(b1, swap, b2);
-  const wrap = el('div', 'tr'); wrap.append(main, info, el('div', 'hint', 'Service MyMemory : environ 5 000 caractères par jour.'));
-  ctx.view.append(S, wrap);
-
-  async function run() {
-    const text = inp.value, f = from.value, t = to.value, s = ++seq;
-    count.textContent = text.length + ' caractères';
-    if (!text.trim()) { out.value = ''; info.textContent = ''; return; }
-    info.textContent = 'Traduction…';
+  const view = ctx.view;
+  if (typeof el === 'undefined' || typeof neo === 'undefined') { view.textContent = "Ce plugin doit être approuvé par NeoBase pour s'ouvrir."; return; }
+  view.innerHTML = HTML;
+  const $ = id => view.querySelector('#' + id);  // les identifiants de ta vue, sans toucher à ceux du reste de NeoBase
+  // ---- ton code d'origine ----
+  /* ---------- Traducteur app: MyMemory (free, no account, about 5000 characters a day), long texts cut into sentences ---------- */
+  const TR_LANGS = {auto: 'Détecter', fr: 'Français', en: 'Anglais', es: 'Espagnol', de: 'Allemand', it: 'Italien', pt: 'Portugais', nl: 'Néerlandais', ja: 'Japonais', ko: 'Coréen', zh: 'Chinois', ru: 'Russe', ar: 'Arabe', pl: 'Polonais', tr: 'Turc', sv: 'Suédois', uk: 'Ukrainien'};
+  let trTimer = null, trSeq = 0;
+  function trInit() {
+    if ($('trFrom').options.length) return;
+    for (const [k, n] of Object.entries(TR_LANGS)) { $('trFrom').append(new Option(n, k)); if (k !== 'auto') $('trTo').append(new Option(n, k)); }
+    $('trFrom').value = 'auto'; $('trTo').value = 'en';
+  }
+  const trChunks = t => { const out = []; let cur = ''; for (const s of t.match(/[^.!?\n]+[.!?\n]*|\n/g) || [t]) { if ((cur + s).length > 450 && cur) { out.push(cur); cur = ''; } cur += s; } if (cur) out.push(cur); return out; };
+  async function trRun() {
+    const text = $('trIn').value, from = $('trFrom').value, to = $('trTo').value, seq = ++trSeq;
+    $('trCount').textContent = text.length + ' caractères';
+    if (!text.trim()) { $('trOut').value = ''; $('trInfo').textContent = ''; return; }
+    $('trInfo').textContent = 'Traduction…';
     try {
-      const parts = []; let detected = '';
-      for (const c of chunks(text)) {
+      const parts = [];
+      let detected = '';
+      for (const c of trChunks(text)) {
         if (!c.trim()) { parts.push(c); continue; }
-        const d = JSON.parse((await ctx.net('https://api.mymemory.translated.net/get?langpair=' + encodeURIComponent((f === 'auto' ? 'autodetect' : f) + '|' + t) + '&q=' + encodeURIComponent(c))).body);
-        if (d.responseStatus != 200) throw new Error(d.responseDetails || 'service indisponible');
+        const d = await fetch('https://api.mymemory.translated.net/get?langpair=' + encodeURIComponent((from === 'auto' ? 'autodetect' : from) + '|' + to) + '&q=' + encodeURIComponent(c)).then(r => r.json());
+        if (d.responseStatus !== 200 && d.responseStatus !== '200') throw new Error(d.responseDetails || 'service indisponible');
         detected ||= d.responseData.detectedLanguage || '';
         parts.push(d.responseData.translatedText + (c.endsWith('\n') ? '\n' : ' '));
       }
-      if (s !== seq) return;
-      const tx = el('textarea'); tx.innerHTML = parts.join('').trim(); out.value = tx.value;
-      info.textContent = f === 'auto' && detected ? 'Langue détectée : ' + (LANGS[detected.slice(0, 2).toLowerCase()] || detected) : '';
-    } catch (e) { if (s === seq) info.textContent = 'Traduction impossible : ' + e.message; }
+      if (seq !== trSeq) return;  // a newer text was typed meanwhile
+      const tx = document.createElement('textarea'); tx.innerHTML = parts.join('').trim(); $('trOut').value = tx.value;  // decodes &#39; and friends
+      $('trInfo').textContent = from === 'auto' && detected ? 'Langue détectée : ' + (TR_LANGS[detected.slice(0, 2).toLowerCase()] || detected) : '';
+    } catch (e) { if (seq === trSeq) $('trInfo').textContent = 'Traduction impossible : ' + e.message; }
   }
-  inp.oninput = () => { clearTimeout(timer); timer = setTimeout(run, 700); };
-  from.onchange = to.onchange = run;
-  swap.onclick = () => { if (from.value === 'auto') from.value = to.value === 'fr' ? 'en' : 'fr'; const a = from.value; from.value = to.value; to.value = a; if (out.value) inp.value = out.value; run(); };
-  copy.onclick = async () => { try { await navigator.clipboard.writeText(out.value); ctx.ui.toast('Traduction copiée'); } catch { ctx.ui.toast('Copie impossible', true); } };
+  $('trIn').oninput = () => { clearTimeout(trTimer); trTimer = setTimeout(trRun, 700); };
+  $('trFrom').onchange = $('trTo').onchange = trRun;
+  $('trSwap').onclick = () => { if ($('trFrom').value === 'auto') $('trFrom').value = $('trTo').value === 'fr' ? 'en' : 'fr'; const a = $('trFrom').value; $('trFrom').value = $('trTo').value; $('trTo').value = a; const t = $('trOut').value; if (t) $('trIn').value = t; trRun(); };
+  $('trCopy').onclick = () => { navigator.clipboard.writeText($('trOut').value); toast('Traduction copiée'); };
+  // ---- fin ----
+  ctx.onOpen(() => { trInit(); setTimeout(() => $('trIn').focus()); });
+  ctx.onClose(() => { clearTimeout(trTimer); });
 }
