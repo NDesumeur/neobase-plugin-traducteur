@@ -1,9 +1,9 @@
 {
   "pluginId": "neodex.traducteur",
   "repo": "NDesumeur/neodex-plugin-traducteur",
-  "version": "1.2.1",
-  "sha256": "dfb894b8af553c178fb881665cc9f4201f7b8c20068c441a86793dec4e217b54",
-  "approvedAt": "2026-10-31T17:51:20.985Z",
+  "version": "1.3.0",
+  "sha256": "f4d9c3908d12fcf64dbfb2b54fb8fa96a3fdcb6308e16144aa59dfc43df8b9d0",
+  "approvedAt": "2026-11-04T10:05:10.932Z",
   "neobase": ">=4.0.0",
-  "signature": "eRkcTmCQ+WPy1brssw2XuZjTCqHYqvvGb4/zsCXu18lTKj2W16O6IWtfkQgS2vHFOoxE7O2N7AO8xljk20wDBw=="
+  "signature": "WD29VFm373fVaH2B+rud9IFa/O2HCMKOIZVWRBBRK/VVTLjBckqV2a0v0G8bj8d0kDUk5B4ecsid6p4E3TtSAQ=="
 }
