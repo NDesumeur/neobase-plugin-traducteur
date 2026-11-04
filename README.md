@@ -1,7 +1,8 @@
 # Traducteur
 
-Traduis un texte entre de nombreuses langues dans NeoBase, avec détection automatique de la langue.
-Service MyMemory, gratuit et sans compte.
+Traduit un texte entre de nombreuses langues (service MyMemory, sans compte).
+
+Ses données sont rangées dans le dossier du plugin, que NeoBase sauvegarde (synchro cloud comprise). Au premier lancement, il reprend ce que tu avais déjà dans NeoBase.
 
 ## Installer
 

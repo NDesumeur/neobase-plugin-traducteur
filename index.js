@@ -1,6 +1,6 @@
 // Traducteur : ton appli d'origine (HTML et code inchangés), livrée en plugin.
 // Ses données sont dans le dossier du plugin, que NeoBase sauvegarde (synchro cloud et sauvegardes) ; à la première ouverture elle reprend ce que tu avais dans NeoBase.
-// Elle demande l'accès complet pour utiliser les outils d'interface de NeoBase. NeoBase ne l'ouvre que si elle est signée.
+// Elle tourne dans le bac à sable de NeoBase, avec ses outils d'interface (ctx.host) et seulement les autorisations de son plugin.json.
 const HTML = "<div class=\"appWrap\">\n      <div class=\"agHead\"><span class=\"label\">Traducteur</span><span class=\"hint\" id=\"trInfo\"></span></div>\n      <div class=\"trMain\">\n        <div class=\"sysCard px\"><select class=\"f\" id=\"trFrom\"></select><textarea class=\"f trBox\" id=\"trIn\" placeholder=\"Écris ou colle un texte…\"></textarea><div class=\"hint\" id=\"trCount\"></div></div>\n        <button class=\"btn px\" id=\"trSwap\" title=\"Inverser les langues\">⇄</button>\n        <div class=\"sysCard px\"><select class=\"f\" id=\"trTo\"></select><textarea class=\"f trBox\" id=\"trOut\" readonly placeholder=\"Traduction\"></textarea><div class=\"row\"><button class=\"btn px\" id=\"trCopy\">Copier</button></div></div>\n      </div>\n      <div class=\"hint\">Service MyMemory : gratuit et sans compte, environ 5 000 caractères par jour.</div>\n    </div>";
 /*CSS-MOVED*/ const CSS = `.trMain{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center}
 #trSwap{height:46px;font-size:20px}
